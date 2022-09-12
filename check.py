@@ -7,7 +7,6 @@ import os
 import random
 from notify.tgpush import post_tg
 from notify.Dingpush import dingpush
-from utils import verify
 
 #签到程序模块
 class LoginError(Exception):
@@ -172,7 +171,7 @@ class HealthCheckInHelper(ZJULogin):
         try:
             done = re.findall('温馨提示： 不外出、不聚集、不吃野味， 戴口罩、勤洗手、咳嗽有礼，开窗通风，发热就诊',html)[0]
             print(done)
-            try:
+            '''try:
                 res = self.sess.get(self.imgaddress, headers=self.headers)
                 code_get = verify.getcode(res.content)
                 code = code_get.main()
@@ -182,7 +181,7 @@ class HealthCheckInHelper(ZJULogin):
                 else:
                     self.Push('验证码识别成功，请稍后')
             except:
-                print('验证码识别失败')
+                print('验证码识别失败')'''
         except:
             print('打卡网页获取失败')
             self.Push('打卡网页获取失败')
@@ -224,15 +223,15 @@ class HealthCheckInHelper(ZJULogin):
                 'jnjtgjbc': '',
                 # 是否确认信息属实
                 'sfqrxxss': '1',
-                'sfqtyyqjwdg': '0',
-                'sffrqjwdg': '0',
+                'sfqtyyqjwdg': '',
+                'sffrqjwdg': '',
                 'sfhsjc': '',
                 'zgfx14rfh': '0',
                 'zgfx14rfhdd': '',
-                'sfyxjzxgym': '1',
+                'sfyxjzxgym': '',
                 # 是否不宜接种人群
-                'sfbyjzrq': '5',
-                'jzxgymqk': '6', # 这里是第三针相关参数，1是已接种第一针，4是已接种第二针（已满6个月），5是已接种第二针（未满6个月），6是已接种第三针，3是未接种，记得自己改
+                'sfbyjzrq': '0',
+                'jzxgymqk': '0', # 这里是第三针相关参数[已删除]
                 'tw': '0',
                 'sfcxtz': '0',
                 'sfjcbh': '0',
@@ -264,17 +263,16 @@ class HealthCheckInHelper(ZJULogin):
                 'glksrq': '',
                 'jcbhlx': '',
                 'jcbhrq': '',
-                'bztcyy': '4', 
-                'sftjhb': '0',
+                'bztcyy': '', 
+                'sftjhb': '',
                 'sftjwh': '0',
-                'fjsj':	'0',
                 'sfjcqz': '', 
                 'jcqzrq': '',
                 'jrsfqzys': '',
                 'jrsfqzfy': '',
-                'sfyqjzgc': '',
+                'sfyqjzgc': '0',
                 # 是否申领杭州健康码
-                'sfsqhzjkk': '1',
+                'sfsqhzjkk': '0,
                 # 杭州健康吗颜色，1:绿色 2:红色 3:黄色
                 'sqhzjkkys': '1',
                 'gwszgzcs': '',
@@ -289,28 +287,17 @@ class HealthCheckInHelper(ZJULogin):
                 'date': get_date(),
                 'created': round(time.time()),
                 'szsqsfybl': '0',
-                'sfygtjzzfj': '0',
+                'sfygtjzzfj': '',
                 'gtjzzfjsj': '',
                 'gwszdd': '',
                 'szgjcs': '',
-                'ismoved': '0', # 位置变化为1，不变为0
+                'ismoved': '0,
                 'zgfx14rfhsj':'',
-                'jrdqjcqk': '',
-                'jcwhryfs': '',	
-                'jchbryfs': '',	
-                'xjzd': '',	
-                'sfsfbh':'0',
-                'jhfjrq':'',	
-                'jhfjjtgj':'',	
-                'jhfjhbcc':'',	
-                'jhfjsftjwh':'0',
-                'jhfjsftjhb':'0',
-                'szsqsfybl':'0',
-                'gwszgz':'',
-                'campus': '紫金港校区', # 紫金港校区 玉泉校区 西溪校区 华家池校区 之江校区 海宁校区 舟山校区 宁波校区 工程师学院 杭州国际科创中心 其他
-                # 👇-----2022.5.7日修改-----👇
-                'verifyCode': code,
-                # 👆-----2022.5.7日修改-----👆
+                'campus': '', # 紫金港校区 玉泉校区 西溪校区 华家池校区 之江校区 海宁校区 舟山校区 宁波校区 工程师学院 杭州国际科创中心 其他 /不在校即为空值
+                # 👇-----2022.5.19日修改-----👇
+                'verifyCode': ''  ,
+                # 👆-----2022.5.19日修改-----👆
+                'internship': '1'
             }
             data.update(verify_code)
             response = self.sess.post('https://healthreport.zju.edu.cn/ncov/wap/default/save', data=data,
@@ -320,11 +307,11 @@ class HealthCheckInHelper(ZJULogin):
     def Push(self,res):
         if res:
             if self.CHAT_ID and self.TG_TOKEN :
-                post_tg('浙江大学每日健康打卡 V3.0 '+ f" \n\n 签到结果:{res}", self.CHAT_ID, self.TG_TOKEN) 
+                post_tg('浙江大学每日健康打卡 V3.1 '+ f" \n\n 签到结果:{res}", self.CHAT_ID, self.TG_TOKEN) 
             else:
                 print("telegram推送未配置,请自行查看签到结果")
             if self.DD_BOT_TOKEN:
-                ding= dingpush('浙江大学每日健康打卡 V3.0 ', res,self.reminders,self.DD_BOT_TOKEN,self.DD_BOT_SECRET)
+                ding= dingpush('浙江大学每日健康打卡 V3.1 ', res,self.reminders,self.DD_BOT_TOKEN,self.DD_BOT_SECRET)
                 ding.SelectAndPush()
             else:
                 print("钉钉推送未配置，请自行查看签到结果")
